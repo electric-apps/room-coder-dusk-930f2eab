@@ -1,11 +1,18 @@
-import { pgTable, uuid, text, boolean, integer, timestamp } from "drizzle-orm/pg-core"
+import {
+	boolean,
+	integer,
+	pgTable,
+	text,
+	timestamp,
+	uuid,
+} from "drizzle-orm/pg-core";
 
 export const categories = pgTable("categories", {
 	id: uuid().primaryKey().defaultRandom(),
 	name: text().notNull(),
 	emoji: text().notNull(),
 	created_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
-})
+});
 
 export const questions = pgTable("questions", {
 	id: uuid().primaryKey().defaultRandom(),
@@ -19,7 +26,7 @@ export const questions = pgTable("questions", {
 	wrong_answer_3: text().notNull(),
 	difficulty: text().notNull().default("medium"),
 	created_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
-})
+});
 
 export const game_rooms = pgTable("game_rooms", {
 	id: uuid().primaryKey().defaultRandom(),
@@ -32,7 +39,7 @@ export const game_rooms = pgTable("game_rooms", {
 	total_rounds: integer().notNull().default(5),
 	created_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	updated_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
-})
+});
 
 export const players = pgTable("players", {
 	id: uuid().primaryKey().defaultRandom(),
@@ -44,7 +51,7 @@ export const players = pgTable("players", {
 	is_ready: boolean().notNull().default(false),
 	created_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	updated_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
-})
+});
 
 export const answers = pgTable("answers", {
 	id: uuid().primaryKey().defaultRandom(),
@@ -61,4 +68,4 @@ export const answers = pgTable("answers", {
 	is_correct: boolean().notNull(),
 	points_earned: integer().notNull().default(0),
 	answered_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
-})
+});

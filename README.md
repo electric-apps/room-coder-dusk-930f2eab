@@ -1,44 +1,49 @@
-# Kyle's Stack
+# TriviaBlast ⚡
 
-A starter for building apps with TanStack Start, Radix UI, and capsize typography — with [`@tanstack/intent`](https://github.com/TanStack/intent) skills pre-installed for **Electric**, **TanStack DB**, and **Durable Streams**.
+Real-time multiplayer trivia game — battle your friends with live-synced questions, a ticking timer, and a live leaderboard.
 
-## Quick Start
+## Features
+
+- **Multiplayer rooms** — share a 4-character code with friends to join
+- **Live sync** — all players see the same question state instantly via Electric SQL
+- **Timed questions** — 20 seconds per question; faster answers earn more points (up to 1000)
+- **Live leaderboard** — scores update in real-time as players answer
+- **Pre-seeded content** — 5 categories with 25 questions ready to play immediately
+- **Optimistic updates** — UI responds instantly before server confirmation
+- **Host controls** — host advances questions and ends the game
+
+## Tech Stack
+
+- **[Electric SQL](https://electric-sql.com)** — Postgres-to-client real-time sync via shapes
+- **[TanStack DB](https://tanstack.com/db)** — reactive collections and optimistic mutations
+- **[Drizzle ORM](https://orm.drizzle.team)** — schema definitions and migrations
+- **[TanStack Start](https://tanstack.com/start)** — React SSR meta-framework
+- **[Radix UI Themes](https://www.radix-ui.com/themes)** — component library
+
+## Getting Started
 
 ```bash
-npx gitpick KyleAMathews/kpb my-app
-cd my-app
 pnpm install
-pnpm dev
+pnpm drizzle-kit migrate
+pnpm dev:start
 ```
 
-## Included Skills
+Then open `http://localhost:5173` in your browser.
 
-This starter comes with skills pre-installed. Just ask your coding agent:
+## How to Play
 
-**Electric** — Sync Postgres to your app
-- "Set up Electric sync for my Postgres database"
-- "Run the Electric security checklist"
+1. **Host**: Click "Host a Game", enter your name → get a 4-character room code
+2. **Players**: Click "Join a Game", enter the code and your name
+3. **Lobby**: Players mark themselves as ready; host clicks "Start Game"
+4. **Game**: Answer questions before the 20s timer runs out — faster = more points
+5. **Results**: See the final leaderboard and champion!
 
-**TanStack DB** — Reactive client-side data
-- "Add a TanStack DB collection for the users table"
-- "Set up live queries for my todos"
+## Data Model
 
-**Durable Streams** — Real-time state sync
-- "Set up a Durable Streams dev environment"
-- "Add presence tracking to my app"
-
-**Radix + Capsize** — Typography
-- "Switch to the Playfair theme"
-- "Show me more font theme options"
-
-## What's Included
-
-- **TanStack Start** - Full-stack React framework
-- **Radix UI** - Accessible components with themes
-- **Capsize typography** - Pixel-perfect text rendering
-- **Dozens of font pairings included** - Ask the agent to set one up
-- **Biome** - Fast linting and formatting
-
-## License
-
-MIT
+| Table | Purpose |
+|-------|---------|
+| `categories` | Trivia categories (Science, History, Geography, Pop Culture, Sports) |
+| `questions` | Questions with correct + 3 wrong answers per category |
+| `game_rooms` | Game room state (status, current question, round info) |
+| `players` | Players in a room with live scores |
+| `answers` | Player answers with correctness and points earned |
