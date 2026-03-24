@@ -91,19 +91,6 @@ function getPendingJoin(code: string): PendingJoin | null {
 	}
 }
 
-function getQuestionQueue(code: string): string[] {
-	try {
-		const raw = sessionStorage.getItem(`trivia_queue_${code}`);
-		return raw ? JSON.parse(raw) : [];
-	} catch {
-		return [];
-	}
-}
-
-function setQuestionQueue(code: string, queue: string[]) {
-	sessionStorage.setItem(`trivia_queue_${code}`, JSON.stringify(queue));
-}
-
 function RoomPage() {
 	const { code } = Route.useParams();
 	const navigate = useNavigate();
@@ -243,7 +230,6 @@ function RoomPage() {
 				session={session}
 				myPlayer={myPlayer}
 				questions={questions ?? []}
-				code={code}
 			/>
 		);
 	}
@@ -257,19 +243,13 @@ function RoomPage() {
 				myPlayer={myPlayer}
 				questions={questions ?? []}
 				currentAnswers={currentAnswers ?? []}
-				code={code}
 			/>
 		);
 	}
 
 	if (room?.status === "finished") {
 		return (
-			<ResultsView
-				room={room}
-				players={players ?? []}
-				session={session}
-				code={code}
-			/>
+			<ResultsView room={room} players={players ?? []} session={session} />
 		);
 	}
 
@@ -320,7 +300,6 @@ function LobbyView({
 		// Pick total_rounds questions randomly
 		const shuffled = [...questions].sort(() => Math.random() - 0.5);
 		const queue = shuffled.slice(0, room.total_rounds).map((q) => q.id);
-		setQuestionQueue(code, queue);
 
 		const firstQuestionId = queue[0];
 		gameRoomsCollection.update(room.id, (draft) => {
@@ -328,6 +307,7 @@ function LobbyView({
 			draft.current_question_id = firstQuestionId;
 			draft.question_started_at = new Date();
 			draft.round_number = 1;
+			draft.question_queue = JSON.stringify(queue);
 			draft.updated_at = new Date();
 		});
 	};
@@ -487,7 +467,6 @@ interface GameProps {
 	>["data"] extends Map<string, infer T>
 		? T[]
 		: never[];
-	code: string;
 }
 
 function GameView({
@@ -497,7 +476,6 @@ function GameView({
 	myPlayer,
 	questions,
 	currentAnswers,
-	code,
 }: GameProps) {
 	const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
 	const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -571,7 +549,9 @@ function GameView({
 	};
 
 	const nextQuestion = () => {
-		const queue = getQuestionQueue(code);
+		const queue: string[] = room.question_queue
+			? JSON.parse(room.question_queue)
+			: [];
 		const nextIndex = room.round_number; // round_number is 1-based, index is 0-based
 		if (nextIndex >= queue.length) {
 			// Game over

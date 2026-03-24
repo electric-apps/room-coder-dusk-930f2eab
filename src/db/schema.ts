@@ -4,6 +4,7 @@ import {
 	pgTable,
 	text,
 	timestamp,
+	unique,
 	uuid,
 } from "drizzle-orm/pg-core";
 
@@ -37,6 +38,7 @@ export const game_rooms = pgTable("game_rooms", {
 	question_started_at: timestamp({ withTimezone: true }),
 	round_number: integer().notNull().default(0),
 	total_rounds: integer().notNull().default(5),
+	question_queue: text(),
 	created_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
 	updated_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
@@ -53,19 +55,29 @@ export const players = pgTable("players", {
 	updated_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 
-export const answers = pgTable("answers", {
-	id: uuid().primaryKey().defaultRandom(),
-	room_id: uuid()
-		.notNull()
-		.references(() => game_rooms.id, { onDelete: "cascade" }),
-	question_id: uuid()
-		.notNull()
-		.references(() => questions.id, { onDelete: "cascade" }),
-	player_id: uuid()
-		.notNull()
-		.references(() => players.id, { onDelete: "cascade" }),
-	selected_answer: text().notNull(),
-	is_correct: boolean().notNull(),
-	points_earned: integer().notNull().default(0),
-	answered_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
-});
+export const answers = pgTable(
+	"answers",
+	{
+		id: uuid().primaryKey().defaultRandom(),
+		room_id: uuid()
+			.notNull()
+			.references(() => game_rooms.id, { onDelete: "cascade" }),
+		question_id: uuid()
+			.notNull()
+			.references(() => questions.id, { onDelete: "cascade" }),
+		player_id: uuid()
+			.notNull()
+			.references(() => players.id, { onDelete: "cascade" }),
+		selected_answer: text().notNull(),
+		is_correct: boolean().notNull(),
+		points_earned: integer().notNull().default(0),
+		answered_at: timestamp({ withTimezone: true }).notNull().defaultNow(),
+	},
+	(t) => [
+		unique("answers_room_question_player_unique").on(
+			t.room_id,
+			t.question_id,
+			t.player_id,
+		),
+	],
+);

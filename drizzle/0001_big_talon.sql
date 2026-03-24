@@ -1,0 +1,2 @@
+ALTER TABLE "game_rooms" ADD COLUMN "question_queue" text;--> statement-breakpoint
+ALTER TABLE "answers" ADD CONSTRAINT "answers_room_question_player_unique" UNIQUE("room_id","question_id","player_id");
